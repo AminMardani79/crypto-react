@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 // components
 import Coin from "./Coin";
+import Loading from "./Loading";
 // api
 import { getCoins } from "../services/api";
 const Landing = () => {
@@ -41,16 +42,20 @@ const Landing = () => {
               </tr>
             </thead>
             <tbody>
-              {searchedCoins.map((coin) => (
-                <Coin
-                  key={coin.id}
-                  symbol={coin.symbol}
-                  name={coin.name}
-                  image={coin.image}
-                  price={coin.current_price}
-                  priceChange={coin.price_change_percentage_24h}
-                />
-              ))}
+              {coins.length ? (
+                searchedCoins.map((coin) => (
+                  <Coin
+                    key={coin.id}
+                    symbol={coin.symbol}
+                    name={coin.name}
+                    image={coin.image}
+                    price={coin.current_price}
+                    priceChange={coin.price_change_percentage_24h}
+                  />
+                ))
+              ) : (
+                <Loading />
+              )}
             </tbody>
           </table>
         </div>

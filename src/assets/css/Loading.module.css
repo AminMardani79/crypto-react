@@ -1,0 +1,17 @@
+.loadingContainer{
+    height: 30vh;
+    width: 100%;
+}
+.loadingContainer td{
+    text-align: center;
+}
+.loadingContainer tr:hover{
+    background-color: none !important;
+}
+.loadingContainer td:hover{
+    box-shadow: none !important; 
+}
+.loadingContainer td img{
+    width: 60px;
+    height: 60px;
+}
