@@ -7,6 +7,7 @@ import { getCoins } from "../services/api";
 const Landing = () => {
   const [coins, setCoins] = useState([]);
   const [search, setSearch] = useState("");
+  const [ascendSort, setAscendSort] = useState(false);
   useEffect(() => {
     const fetchApi = async () => {
       const coinsData = await getCoins();
@@ -15,9 +16,16 @@ const Landing = () => {
     fetchApi();
   });
   const searchHandler = (event) => [setSearch(event.target.value)];
-  const searchedCoins = coins.filter((item) =>
-    item.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const sortedCoins = coins
+    .sort((a, b) => {
+      return ascendSort
+        ? a.current_price - b.current_price
+        : b.current_price - a.current_price;
+    })
+    .filter((item) => item.name.toLowerCase().includes(search.toLowerCase()));
+  const sortHandler = () => {
+    setAscendSort((prev) => !prev);
+  };
   return (
     <div>
       <div className="crypto-container">
@@ -36,14 +44,20 @@ const Landing = () => {
               <tr>
                 <th>Symbol</th>
                 <th>Name</th>
-                <th>Current Price</th>
+                <th>
+                  Current Price
+                  <i
+                    className="sort-icon fa fa-sort mx-1"
+                    onClick={sortHandler}
+                  ></i>
+                </th>
                 <th>Percentage Change(24h)</th>
                 <th>Image</th>
               </tr>
             </thead>
             <tbody>
               {coins.length ? (
-                searchedCoins.map((coin) => (
+                sortedCoins.map((coin) => (
                   <Coin
                     key={coin.id}
                     symbol={coin.symbol}

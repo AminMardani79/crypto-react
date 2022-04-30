@@ -105,6 +105,10 @@ background: linear-gradient(229deg, rgba(48,117,156,1) 0%, rgba(17,51,77,1) 82%)
 .logoContainer img{
     width: 100px;
     height: 100px;
+    cursor: pointer;
+}
+.sort-icon{
+    cursor: pointer;
 }
 @media screen and (max-width: 992px) {
     .crypto-container{
