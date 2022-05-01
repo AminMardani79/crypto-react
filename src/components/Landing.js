@@ -1,31 +1,70 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useReducer } from "react";
 // components
 import Coin from "./Coin";
 import Loading from "./Loading";
 // api
 import { getCoins } from "../services/api";
+
+const initialState = {
+  coins: [],
+  role: "",
+  isAscending: false,
+};
+
+const sortReducer = (state, action) => {
+  switch (action.type) {
+    case "":
+      return {
+        ...state,
+        coins: action.payload,
+      };
+    case "PRICE":
+      const sortByPrice = action.payload.sort((a, b) => {
+        return state.isAscending
+          ? b.current_price - a.current_price
+          : a.current_price - b.current_price;
+      });
+      return {
+        ...state,
+        coins: [...sortByPrice],
+        role: "PRICE",
+        isAscending: !state.isAscending,
+      };
+    case "CHANGE_PERCENT":
+      const sortByChange = action.payload.sort((a, b) => {
+        return state.isAscending
+          ? b.price_change_percentage_24h - a.price_change_percentage_24h
+          : a.price_change_percentage_24h - b.price_change_percentage_24h;
+      });
+      return {
+        ...state,
+        coins: [...sortByChange],
+        role: "CHANGE_PERCENT",
+        isAscending: !state.isAscending,
+      };
+    default:
+      return {
+        ...state,
+      };
+  }
+};
+
 const Landing = () => {
-  const [coins, setCoins] = useState([]);
+  const [sortState, dispatch] = useReducer(sortReducer, initialState);
   const [search, setSearch] = useState("");
-  const [ascendSort, setAscendSort] = useState(false);
   useEffect(() => {
     const fetchApi = async () => {
       const coinsData = await getCoins();
-      setCoins(coinsData);
+      dispatch({ type: "", payload: coinsData });
     };
     fetchApi();
-  });
-  const searchHandler = (event) => [setSearch(event.target.value)];
-  const sortedCoins = coins
-    .sort((a, b) => {
-      return ascendSort
-        ? a.current_price - b.current_price
-        : b.current_price - a.current_price;
-    })
-    .filter((item) => item.name.toLowerCase().includes(search.toLowerCase()));
-  const sortHandler = () => {
-    setAscendSort((prev) => !prev);
+  }, []);
+  const searchHandler = (event) => {
+    setSearch(event.target.value);
   };
+  const searchedCoins = sortState.coins.filter((item) => {
+    return item.name.toLowerCase().includes(search.toLowerCase());
+  });
   return (
     <div>
       <div className="crypto-container">
@@ -48,16 +87,29 @@ const Landing = () => {
                   Current Price
                   <i
                     className="sort-icon fa fa-sort mx-1"
-                    onClick={sortHandler}
+                    onClick={() =>
+                      dispatch({ type: "PRICE", payload: sortState.coins })
+                    }
                   ></i>
                 </th>
-                <th>Percentage Change(24h)</th>
+                <th>
+                  Percentage Change(24h)
+                  <i
+                    className="sort-icon fa fa-sort mx-1"
+                    onClick={() =>
+                      dispatch({
+                        type: "CHANGE_PERCENT",
+                        payload: sortState.coins,
+                      })
+                    }
+                  ></i>
+                </th>
                 <th>Image</th>
               </tr>
             </thead>
             <tbody>
-              {coins.length ? (
-                sortedCoins.map((coin) => (
+              {sortState.coins.length ? (
+                searchedCoins.map((coin) => (
                   <Coin
                     key={coin.id}
                     symbol={coin.symbol}
